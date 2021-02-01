@@ -2,8 +2,6 @@ package com.github.mikephil.charting.listener;
 
 import android.annotation.SuppressLint;
 import android.graphics.Matrix;
-import android.graphics.PointF;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -352,7 +350,8 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
             float totalDist = spacing(event);
 
             if (totalDist > mMinScalePointerDistance) {
-
+                Matrix tempMatrix = new Matrix();
+                tempMatrix.set(mSavedMatrix);
                 // get the translation
                 MPPointF t = getTrans(mTouchPointCenter.x, mTouchPointCenter.y);
                 ViewPortHandler h = mChart.getViewPortHandler();
@@ -377,13 +376,9 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
                     float scaleX = (mChart.isScaleXEnabled()) ? scale : 1f;
                     float scaleY = (mChart.isScaleYEnabled()) ? scale : 1f;
 
-                    if (canZoomMoreY || canZoomMoreX) {
-
-                        mMatrix.set(mSavedMatrix);
-                        mMatrix.postScale(scaleX, scaleY, t.x, t.y);
-
-                        if (l != null)
-                            l.onChartScale(event, scaleX, scaleY);
+                    if (canZoomMoreY && canZoomMoreX) {
+                        tempMatrix.postScale(scaleX, scaleY, t.x, t.y);
+                        applyZoom(event, tempMatrix, scaleX, scaleY);
                     }
 
                 } else if (mTouchMode == X_ZOOM && mChart.isScaleXEnabled()) {
@@ -399,12 +394,8 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
                             h.canZoomInMoreX();
 
                     if (canZoomMoreX) {
-
-                        mMatrix.set(mSavedMatrix);
-                        mMatrix.postScale(scaleX, 1f, t.x, t.y);
-
-                        if (l != null)
-                            l.onChartScale(event, scaleX, 1f);
+                        tempMatrix.postScale(scaleX, 1f, t.x, t.y);
+                        applyZoom(event, tempMatrix, scaleX, 1f);
                     }
 
                 } else if (mTouchMode == Y_ZOOM && mChart.isScaleYEnabled()) {
@@ -420,17 +411,28 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
                             h.canZoomInMoreY();
 
                     if (canZoomMoreY) {
-
-                        mMatrix.set(mSavedMatrix);
-                        mMatrix.postScale(1f, scaleY, t.x, t.y);
-
-                        if (l != null)
-                            l.onChartScale(event, 1f, scaleY);
+                        tempMatrix.postScale(1f, scaleY, t.x, t.y);
+                        applyZoom(event, tempMatrix, 1f, scaleY);
                     }
                 }
 
                 MPPointF.recycleInstance(t);
             }
+        }
+    }
+
+    private void applyZoom(MotionEvent event, Matrix matrix, Float scaleX, Float scaleY) {
+        ViewPortHandler viewPortHandler = mChart.getViewPortHandler();
+        float[] matrixValues = new float[9];
+        matrix.getValues(matrixValues);
+        if (
+                matrixValues[Matrix.MSCALE_X] < viewPortHandler.getMaxScaleX() &&
+                        matrixValues[Matrix.MSCALE_Y] < viewPortHandler.getMaxScaleY()
+        ) {
+            mMatrix.set(matrix);
+            OnChartGestureListener gestureListener = mChart.getOnChartGestureListener();
+            if (gestureListener != null)
+                gestureListener.onChartScale(event, scaleX, scaleY);
         }
     }
 
@@ -583,16 +585,10 @@ public class BarLineChartTouchListener extends ChartTouchListener<BarLineChartBa
             float scaleX = mChart.isScaleXEnabled() ? 1.4f : 1f;
             float scaleY = mChart.isScaleYEnabled() ? 1.4f : 1f;
 
-            mChart.zoom(scaleX, scaleY, trans.x, trans.y);
-
-            if (mChart.isLogEnabled())
-                Log.i("BarlineChartTouch", "Double-Tap, Zooming In, x: " + trans.x + ", y: "
-                        + trans.y);
-
-            if (l != null) {
-                l.onChartScale(e, scaleX, scaleY);
-            }
-
+            Matrix tempMatrix = new Matrix();
+            tempMatrix.set(mSavedMatrix);
+            tempMatrix.postScale(scaleX, scaleY, trans.x, trans.y);
+            applyZoom(e, tempMatrix, scaleX, scaleY);
             MPPointF.recycleInstance(trans);
         }
 
