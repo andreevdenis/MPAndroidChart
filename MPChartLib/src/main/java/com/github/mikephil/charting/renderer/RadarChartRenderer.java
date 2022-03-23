@@ -281,7 +281,7 @@ public class RadarChartRenderer extends LineRadarRenderer {
 
             for (int i = 0; i < mChart.getData().getEntryCount(); i++) {
 
-                float r = (mChart.getYAxis().mEntries[j] - mChart.getYChartMin()) * factor;
+                double r = (mChart.getYAxis().mEntries[j] - mChart.getYChartMin()) * factor;
 
                 Utils.getPosition(center, r, sliceangle * i + rotationangle, p1out);
                 Utils.getPosition(center, r, sliceangle * (i + 1) + rotationangle, p2out);

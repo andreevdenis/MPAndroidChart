@@ -190,7 +190,7 @@ public class XAxisRenderer extends AxisRenderer {
             if (centeringEnabled) {
                 positions[i] = mXAxis.mCenteredEntries[i / 2];
             } else {
-                positions[i] = mXAxis.mEntries[i / 2];
+                positions[i] = (float) mXAxis.mEntries[i / 2];
             }
         }
 
@@ -247,8 +247,8 @@ public class XAxisRenderer extends AxisRenderer {
         float[] positions = mRenderGridLinesBuffer;
 
         for (int i = 0; i < positions.length; i += 2) {
-            positions[i] = mXAxis.mEntries[i / 2];
-            positions[i + 1] = mXAxis.mEntries[i / 2];
+            positions[i] = (float) mXAxis.mEntries[i / 2];
+            positions[i + 1] = (float) mXAxis.mEntries[i / 2];
         }
 
         mTrans.pointValuesToPixel(positions);

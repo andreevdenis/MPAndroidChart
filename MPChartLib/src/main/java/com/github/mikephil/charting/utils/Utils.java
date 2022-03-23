@@ -462,7 +462,7 @@ public abstract class Utils {
         return p;
     }
 
-    public static void getPosition(MPPointF center, float dist, float angle, MPPointF outputPoint){
+    public static void getPosition(MPPointF center, double dist, float angle, MPPointF outputPoint){
         outputPoint.x = (float) (center.x + dist * Math.cos(Math.toRadians(angle)));
         outputPoint.y = (float) (center.y + dist * Math.sin(Math.toRadians(angle)));
     }

@@ -155,7 +155,7 @@ public abstract class AxisRenderer extends Renderer {
         double range = Math.abs(yMax - yMin);
 
         if (labelCount == 0 || range <= 0 || Double.isInfinite(range)) {
-            mAxis.mEntries = new float[]{};
+            mAxis.mEntries = new double[]{};
             mAxis.mCenteredEntries = new float[]{};
             mAxis.mEntryCount = 0;
             return;
@@ -192,7 +192,7 @@ public abstract class AxisRenderer extends Renderer {
 
             if (mAxis.mEntries.length < labelCount) {
                 // Ensure stops contains at least numStops elements.
-                mAxis.mEntries = new float[labelCount];
+                mAxis.mEntries = new double[labelCount];
             }
 
             float v = min;
@@ -230,7 +230,7 @@ public abstract class AxisRenderer extends Renderer {
 
             if (mAxis.mEntries.length < n) {
                 // Ensure stops contains at least numStops elements.
-                mAxis.mEntries = new float[n];
+                mAxis.mEntries = new double[n];
             }
 
             for (f = first, i = 0; i < n; f += interval, ++i) {
@@ -258,7 +258,7 @@ public abstract class AxisRenderer extends Renderer {
             float offset = (float)interval / 2f;
 
             for (int i = 0; i < n; i++) {
-                mAxis.mCenteredEntries[i] = mAxis.mEntries[i] + offset;
+                mAxis.mCenteredEntries[i] = (float) mAxis.mEntries[i] + offset;
             }
         }
     }

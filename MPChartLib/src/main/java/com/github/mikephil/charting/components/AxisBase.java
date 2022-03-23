@@ -35,7 +35,7 @@ public abstract class AxisBase extends ComponentBase {
     /**
      * the actual array of entries
      */
-    public float[] mEntries = new float[]{};
+    public double[] mEntries = new double[]{};
 
     /**
      * axis label entries only used for centered labels

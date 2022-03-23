@@ -165,7 +165,7 @@ public class YAxisRendererHorizontalBarChart extends YAxisRenderer {
 
         for (int i = 0; i < positions.length; i += 2) {
             // only fill x values, y values are not needed for x-labels
-            positions[i] = mYAxis.mEntries[i / 2];
+            positions[i] = (float) mYAxis.mEntries[i / 2];
         }
 
         mTrans.pointValuesToPixel(positions);

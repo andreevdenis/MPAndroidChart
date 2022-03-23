@@ -33,7 +33,7 @@ public class YAxisRendererRadarChart extends YAxisRenderer {
         double range = Math.abs(yMax - yMin);
 
         if (labelCount == 0 || range <= 0 || Double.isInfinite(range)) {
-            mAxis.mEntries = new float[]{};
+            mAxis.mEntries = new double[]{};
             mAxis.mCenteredEntries = new float[]{};
             mAxis.mEntryCount = 0;
             return;
@@ -70,7 +70,7 @@ public class YAxisRendererRadarChart extends YAxisRenderer {
 
             if (mAxis.mEntries.length < labelCount) {
                 // Ensure stops contains at least numStops elements.
-                mAxis.mEntries = new float[labelCount];
+                mAxis.mEntries = new double[labelCount];
             }
 
             float v = min;
@@ -107,7 +107,7 @@ public class YAxisRendererRadarChart extends YAxisRenderer {
 
             if (mAxis.mEntries.length < n) {
                 // Ensure stops contains at least numStops elements.
-                mAxis.mEntries = new float[n];
+                mAxis.mEntries = new double[n];
             }
 
             for (f = first, i = 0; i < n; f += interval, ++i) {
@@ -132,15 +132,15 @@ public class YAxisRendererRadarChart extends YAxisRenderer {
                 mAxis.mCenteredEntries = new float[n];
             }
 
-            float offset = (mAxis.mEntries[1] - mAxis.mEntries[0]) / 2f;
+            float offset = ((float) mAxis.mEntries[1] - (float) mAxis.mEntries[0]) / 2f;
 
             for (int i = 0; i < n; i++) {
-                mAxis.mCenteredEntries[i] = mAxis.mEntries[i] + offset;
+                mAxis.mCenteredEntries[i] = (float) mAxis.mEntries[i] + offset;
             }
         }
 
-        mAxis.mAxisMinimum = mAxis.mEntries[0];
-        mAxis.mAxisMaximum = mAxis.mEntries[n-1];
+        mAxis.mAxisMinimum = (float) mAxis.mEntries[0];
+        mAxis.mAxisMaximum = (float) mAxis.mEntries[n-1];
         mAxis.mAxisRange = Math.abs(mAxis.mAxisMaximum - mAxis.mAxisMinimum);
     }
 
@@ -167,7 +167,7 @@ public class YAxisRendererRadarChart extends YAxisRenderer {
 
         for (int j = from; j < to; j++) {
 
-            float r = (mYAxis.mEntries[j] - mYAxis.mAxisMinimum) * factor;
+            float r = ((float) mYAxis.mEntries[j] - (float) mYAxis.mAxisMinimum) * factor;
 
             Utils.getPosition(center, r, mChart.getRotationAngle(), pOut);
 
