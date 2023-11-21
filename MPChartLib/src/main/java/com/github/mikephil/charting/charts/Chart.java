@@ -461,7 +461,7 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
         String[] lines = text.split("\n");
         for (int i = lines.length - 1; i >= 0; i-=1) {
             c.drawText(lines[i], x, y, mDescPaint);
-            y -= paint.getTextSize();
+            y -= paint.getTextSize() * 1.2;
         }
     }
 
