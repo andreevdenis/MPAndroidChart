@@ -14,10 +14,8 @@ import android.graphics.Paint.Align;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore.Images;
-import androidx.annotation.RequiresApi;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,8 +23,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
 
+import androidx.annotation.RequiresApi;
+
 import com.github.mikephil.charting.animation.ChartAnimator;
-import com.github.mikephil.charting.animation.Easing;
 import com.github.mikephil.charting.animation.Easing.EasingFunction;
 import com.github.mikephil.charting.components.Description;
 import com.github.mikephil.charting.components.IMarker;
@@ -454,7 +453,15 @@ public abstract class Chart<T extends ChartData<? extends IDataSet<? extends Ent
                 y = position.y;
             }
 
-            c.drawText(mDescription.getText(), x, y, mDescPaint);
+            drawMultilineText(c, mDescription.getText(), x, y, mDescPaint);
+        }
+    }
+
+    protected void drawMultilineText(Canvas c, String text, float x, float y, Paint paint) {
+        String[] lines = text.split("\n");
+        for (int i = lines.length - 1; i >= 0; i-=1) {
+            c.drawText(lines[i], x, y, mDescPaint);
+            y -= paint.getTextSize();
         }
     }
 
