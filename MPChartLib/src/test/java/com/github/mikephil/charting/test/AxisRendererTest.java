@@ -22,7 +22,7 @@ public class AxisRendererTest {
         AxisRenderer renderer = new YAxisRenderer(null, yAxis, null);
 
         renderer.computeAxis(0, 100, false);
-        float[] entries = yAxis.mEntries;
+        double[] entries = yAxis.mEntries;
 
         assertEquals(6, entries.length);
         assertEquals(20, entries[1] - entries[0], 0.01); // interval 20
