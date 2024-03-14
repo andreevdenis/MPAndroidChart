@@ -3,16 +3,17 @@ package com.github.mikephil.charting.components;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.RelativeLayout;
 
 import com.github.mikephil.charting.charts.Chart;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.highlight.Highlight;
-import com.github.mikephil.charting.utils.FSize;
 import com.github.mikephil.charting.utils.MPPointF;
 
 import java.lang.ref.WeakReference;
+import java.util.Calendar;
 
 /**
  * View that can be displayed when selecting values in the chart. Extend this class to provide custom layouts for your
@@ -25,6 +26,10 @@ public class MarkerView extends RelativeLayout implements IMarker {
     private MPPointF mOffset = new MPPointF();
     private MPPointF mOffset2 = new MPPointF();
     private WeakReference<Chart> mWeakChart;
+    public float drawingPosX;
+    public float drawingPosY;
+    private static final int MAX_CLICK_DURATION = 500;
+    private long startClickTime;
 
     /**
      * Constructor. Sets up the MarkerView with a custom layout resource.
@@ -125,5 +130,24 @@ public class MarkerView extends RelativeLayout implements IMarker {
         canvas.translate(posX + offset.x, posY + offset.y);
         draw(canvas);
         canvas.restoreToCount(saveId);
+        this.drawingPosX = posX + offset.x;
+        this.drawingPosY = posY + offset.y;
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN: {
+                startClickTime = Calendar.getInstance().getTimeInMillis();
+                break;
+            }
+            case MotionEvent.ACTION_UP: {
+                long clickDuration = Calendar.getInstance().getTimeInMillis() - startClickTime;
+                if(clickDuration < MAX_CLICK_DURATION) {
+                    this.performClick();
+                }
+            }
+        }
+        return super.onTouchEvent(event);
     }
 }
