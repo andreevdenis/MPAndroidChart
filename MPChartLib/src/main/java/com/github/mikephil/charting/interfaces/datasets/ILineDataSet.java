@@ -100,4 +100,11 @@ public interface ILineDataSet extends ILineRadarDataSet<Entry> {
      * @return
      */
     IFillFormatter getFillFormatter();
+
+    /**
+     * Returns distance between points of dataset when we don't draw
+     * line and linear fill for interval
+     *
+     */
+    float getMaximumGapBetweenPoints();
 }
