@@ -64,6 +64,11 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
 
     private boolean mDrawCircleHole = true;
 
+    /**
+     * sets distance between points of dataset when we don't draw line and linear fill for interval
+     */
+    private float mMaximumGapBetweenPoints = 0f;
+
 
     public LineDataSet(List<Entry> yVals, String label) {
         super(yVals, label);
@@ -406,6 +411,15 @@ public class LineDataSet extends LineRadarDataSet<Entry> implements ILineDataSet
     @Override
     public IFillFormatter getFillFormatter() {
         return mFillFormatter;
+    }
+
+    public void setMaximumGapBetweenPoints(float maximumGapBetweenPoints) {
+        this.mMaximumGapBetweenPoints = maximumGapBetweenPoints;
+    }
+
+    @Override
+    public float getMaximumGapBetweenPoints() {
+        return mMaximumGapBetweenPoints;
     }
 
     public enum Mode {

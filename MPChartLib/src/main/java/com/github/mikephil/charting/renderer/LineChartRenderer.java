@@ -24,6 +24,7 @@ import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -296,6 +297,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 
         final boolean isDrawSteppedEnabled = dataSet.isDrawSteppedEnabled();
         final int pointsPerEntryPair = isDrawSteppedEnabled ? 4 : 2;
+        final float maximumGapBetweenPoints = dataSet.getMaximumGapBetweenPoints();
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
@@ -397,9 +399,13 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             e1 = dataSet.getEntryForIndex(mXBounds.min);
 
+            List<Entry> drawDotsList = new ArrayList<>();
+            float [] pointToDraw = new float[2];
+
             if (e1 != null) {
 
                 int j = 0;
+                int cnt = 0;
                 for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
 
                     e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
@@ -407,27 +413,32 @@ public class LineChartRenderer extends LineRadarRenderer {
 
                     if (e1 == null || e2 == null) continue;
 
-                    mLineBuffer[j++] = e1.getX();
-                    mLineBuffer[j++] = e1.getY() * phaseY;
-
-                    if (isDrawSteppedEnabled) {
-                        mLineBuffer[j++] = e2.getX();
+                    if (maximumGapBetweenPoints > 0 && (e2.getX() - e1.getX() > maximumGapBetweenPoints)) {
+                        drawDotsList.add(e2);
+                    } else {
+                        cnt++;
+                        mLineBuffer[j++] = e1.getX();
                         mLineBuffer[j++] = e1.getY() * phaseY;
                         mLineBuffer[j++] = e2.getX();
-                        mLineBuffer[j++] = e1.getY() * phaseY;
+                        mLineBuffer[j++] = e2.getY() * phaseY;
                     }
-
-                    mLineBuffer[j++] = e2.getX();
-                    mLineBuffer[j++] = e2.getY() * phaseY;
                 }
 
                 if (j > 0) {
                     trans.pointValuesToPixel(mLineBuffer);
 
-                    final int size = Math.max((mXBounds.range + 1) * pointsPerEntryPair, pointsPerEntryPair) * 2;
+                    final int size = cnt * pointsPerEntryPair * 2;
 
                     mRenderPaint.setColor(dataSet.getColor());
 
+                    if (!drawDotsList.isEmpty()) {
+                        for (Entry entry : drawDotsList) {
+                            pointToDraw[0] = entry.getX();
+                            pointToDraw[1] = entry.getY();
+                            trans.pointValuesToPixel(pointToDraw);
+                            canvas.drawCircle(pointToDraw[0], pointToDraw[1], 1, mRenderPaint);
+                        }
+                    }
                     canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
                 }
             }
@@ -449,6 +460,7 @@ public class LineChartRenderer extends LineRadarRenderer {
     protected void drawLinearFill(Canvas c, ILineDataSet dataSet, Transformer trans, XBounds bounds) {
 
         final Path filled = mGenerateFilledPathBuffer;
+        final float maximumGapBetweenPoints = dataSet.getMaximumGapBetweenPoints();
 
         final int startingIndex = bounds.min;
         final int endingIndex = bounds.range + bounds.min;
@@ -456,33 +468,35 @@ public class LineChartRenderer extends LineRadarRenderer {
 
         int currentStartIndex = 0;
         int currentEndIndex = indexInterval;
-        int iterations = 0;
+        Entry e1, e2;
+        boolean breakInData = false;
 
         // Doing this iteratively in order to avoid OutOfMemory errors that can happen on large bounds sets.
-        do {
-            currentStartIndex = startingIndex + (iterations * indexInterval);
-            currentEndIndex = currentStartIndex + indexInterval;
-            currentEndIndex = currentEndIndex > endingIndex ? endingIndex : currentEndIndex;
+        // Denis: also to process gaps in dataSet
 
-            if (currentStartIndex <= currentEndIndex) {
+        for (int index = startingIndex; index <= endingIndex; index++) {
+            e1 = dataSet.getEntryForIndex(index == 0 ? 0 : (index - 1));
+            e2 = dataSet.getEntryForIndex(index);
+
+            breakInData = maximumGapBetweenPoints > 0 && (e2.getX() - e1.getX() > maximumGapBetweenPoints);
+
+            if (breakInData || index - currentStartIndex >= indexInterval || index == endingIndex) {
+
+                currentEndIndex = breakInData ? index - 1 : index;
+
                 generateFilledPath(dataSet, currentStartIndex, currentEndIndex, filled);
-
                 trans.pathValueToPixel(filled);
 
                 final Drawable drawable = dataSet.getFillDrawable();
                 if (drawable != null) {
-
                     drawFilledPath(c, filled, drawable);
                 } else {
-
                     drawFilledPath(c, filled, dataSet.getFillColor(), dataSet.getFillAlpha());
                 }
+
+                currentStartIndex = breakInData ? index + 1 : index;
             }
-
-            iterations++;
-
-        } while (currentStartIndex <= currentEndIndex);
-
+        }
     }
 
     /**
