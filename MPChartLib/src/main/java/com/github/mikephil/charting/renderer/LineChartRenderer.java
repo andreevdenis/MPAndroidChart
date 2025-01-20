@@ -423,23 +423,24 @@ public class LineChartRenderer extends LineRadarRenderer {
                         mLineBuffer[j++] = e2.getY() * phaseY;
                     }
                 }
+                if (cnt == 1 && e1 != null) {
+                    drawDotsList.add(e1);
+                }
 
+                mRenderPaint.setColor(dataSet.getColor());
                 if (j > 0) {
                     trans.pointValuesToPixel(mLineBuffer);
-
                     final int size = cnt * pointsPerEntryPair * 2;
-
-                    mRenderPaint.setColor(dataSet.getColor());
-
-                    if (!drawDotsList.isEmpty()) {
-                        for (Entry entry : drawDotsList) {
-                            pointToDraw[0] = entry.getX();
-                            pointToDraw[1] = entry.getY();
-                            trans.pointValuesToPixel(pointToDraw);
-                            canvas.drawCircle(pointToDraw[0], pointToDraw[1], 1, mRenderPaint);
-                        }
-                    }
                     canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
+                }
+
+                if (!drawDotsList.isEmpty()) {
+                    for (Entry entry : drawDotsList) {
+                        pointToDraw[0] = entry.getX();
+                        pointToDraw[1] = entry.getY();
+                        trans.pointValuesToPixel(pointToDraw);
+                        canvas.drawCircle(pointToDraw[0], pointToDraw[1], 1, mRenderPaint);
+                    }
                 }
             }
         }
@@ -494,7 +495,7 @@ public class LineChartRenderer extends LineRadarRenderer {
                     drawFilledPath(c, filled, dataSet.getFillColor(), dataSet.getFillAlpha());
                 }
 
-                currentStartIndex = breakInData ? index + 1 : index;
+                currentStartIndex = index;
             }
         }
     }
