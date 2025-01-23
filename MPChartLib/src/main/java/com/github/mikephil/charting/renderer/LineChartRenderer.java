@@ -6,7 +6,6 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
-
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -22,7 +21,6 @@ import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Transformer;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
-
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -399,42 +397,41 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             e1 = dataSet.getEntryForIndex(mXBounds.min);
 
-            List<Entry> drawDotsList = new ArrayList<>();
-            float [] pointToDraw = new float[2];
-
             if (e1 != null) {
+                List<Entry> drawDotsList = new ArrayList<>();
 
+                boolean prevIsGap = true;
                 int j = 0;
-                int cnt = 0;
-                for (int x = mXBounds.min; x <= mXBounds.range + mXBounds.min; x++) {
+                int lineCount = 0;
 
-                    e1 = dataSet.getEntryForIndex(x == 0 ? 0 : (x - 1));
+                for (int x = mXBounds.min + 1; x <= mXBounds.range + mXBounds.min; x++) {
                     e2 = dataSet.getEntryForIndex(x);
-
-                    if (e1 == null || e2 == null) continue;
-
+                    if (e2 == null) continue;
                     if (maximumGapBetweenPoints > 0 && (e2.getX() - e1.getX() > maximumGapBetweenPoints)) {
-                        drawDotsList.add(e2);
+                        if (prevIsGap) drawDotsList.add(e1);
+                        prevIsGap = true;
                     } else {
-                        cnt++;
+                        lineCount++;
+                        prevIsGap = false;
                         mLineBuffer[j++] = e1.getX();
                         mLineBuffer[j++] = e1.getY() * phaseY;
                         mLineBuffer[j++] = e2.getX();
                         mLineBuffer[j++] = e2.getY() * phaseY;
                     }
+                    e1 = e2;
                 }
-                if (cnt == 1 && e1 != null) {
-                    drawDotsList.add(e1);
-                }
+
+                if (prevIsGap) drawDotsList.add(e1);
 
                 mRenderPaint.setColor(dataSet.getColor());
                 if (j > 0) {
                     trans.pointValuesToPixel(mLineBuffer);
-                    final int size = cnt * pointsPerEntryPair * 2;
+                    final int size = lineCount * pointsPerEntryPair * 2;
                     canvas.drawLines(mLineBuffer, 0, size, mRenderPaint);
                 }
 
                 if (!drawDotsList.isEmpty()) {
+                    float[] pointToDraw = new float[2];
                     for (Entry entry : drawDotsList) {
                         pointToDraw[0] = entry.getX();
                         pointToDraw[1] = entry.getY();
