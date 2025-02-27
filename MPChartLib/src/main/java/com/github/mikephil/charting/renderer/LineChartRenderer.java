@@ -482,14 +482,29 @@ public class LineChartRenderer extends LineRadarRenderer {
 
                 currentEndIndex = breakInData ? index - 1 : index;
 
-                generateFilledPath(dataSet, currentStartIndex, currentEndIndex, filled);
-                trans.pathValueToPixel(filled);
+                if (currentStartIndex == currentEndIndex) {
+                    final float fillMin = dataSet.getFillFormatter().getFillLinePosition(dataSet, mChart);
+                    final Entry entry = dataSet.getEntryForIndex(currentStartIndex);
+                    float[] linePoint1 = new float[2];
+                    float[] linePoint2 = new float[2];
+                    linePoint1[0] = entry.getX();
+                    linePoint1[1] = fillMin;
+                    linePoint2[0] = entry.getX();
+                    linePoint2[1] = entry.getY() * mAnimator.getPhaseY();
+                    trans.pointValuesToPixel(linePoint1);
+                    trans.pointValuesToPixel(linePoint2);
 
-                final Drawable drawable = dataSet.getFillDrawable();
-                if (drawable != null) {
-                    drawFilledPath(c, filled, drawable);
+                    drawLine(c, linePoint1[0], linePoint1[1], linePoint2[0], linePoint2[1], dataSet.getFillColor(), dataSet.getFillAlpha());
                 } else {
-                    drawFilledPath(c, filled, dataSet.getFillColor(), dataSet.getFillAlpha());
+                    generateFilledPath(dataSet, currentStartIndex, currentEndIndex, filled);
+                    trans.pathValueToPixel(filled);
+
+                    final Drawable drawable = dataSet.getFillDrawable();
+                    if (drawable != null) {
+                        drawFilledPath(c, filled, drawable);
+                    } else {
+                        drawFilledPath(c, filled, dataSet.getFillColor(), dataSet.getFillAlpha());
+                    }
                 }
 
                 currentStartIndex = index;
@@ -706,6 +721,24 @@ public class LineChartRenderer extends LineRadarRenderer {
                 }
             }
         }
+    }
+
+    protected void drawLine(Canvas c, float startX, float startY, float stopX, float stopY, int fillColor, int fillAlpha) {
+
+        int color = (fillAlpha << 24) | (fillColor & 0xffffff);
+        // save
+        Paint.Style previous = mRenderPaint.getStyle();
+        int previousColor = mRenderPaint.getColor();
+
+        // set
+        mRenderPaint.setStyle(Paint.Style.FILL);
+        mRenderPaint.setColor(color);
+
+        c.drawLine(startX, startY, stopX, stopY, mRenderPaint);
+        // restore
+        mRenderPaint.setColor(previousColor);
+        mRenderPaint.setStyle(previous);
+
     }
 
     @Override
