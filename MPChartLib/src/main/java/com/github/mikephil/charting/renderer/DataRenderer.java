@@ -3,10 +3,10 @@ package com.github.mikephil.charting.renderer;
 
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.DashPathEffect;
 import android.graphics.Paint;
 import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
-import android.graphics.drawable.Drawable;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.data.Entry;
@@ -14,7 +14,6 @@ import com.github.mikephil.charting.formatter.IValueFormatter;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.interfaces.dataprovider.ChartInterface;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
-import com.github.mikephil.charting.utils.MPPointF;
 import com.github.mikephil.charting.utils.Utils;
 import com.github.mikephil.charting.utils.ViewPortHandler;
 
@@ -42,6 +41,9 @@ public abstract class DataRenderer extends Renderer {
 
     protected Paint mDrawPaint;
 
+    protected Paint mDottedPaint;
+
+
     /**
      * paint object for drawing values (text representing values of chart
      * entries)
@@ -66,6 +68,12 @@ public abstract class DataRenderer extends Renderer {
         mHighlightPaint.setStyle(Paint.Style.STROKE);
         mHighlightPaint.setStrokeWidth(2f);
         mHighlightPaint.setColor(Color.rgb(255, 187, 115));
+
+        mDottedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        mDottedPaint.setStyle(Style.FILL);
+        mDottedPaint.setStrokeWidth(2f);
+
+        mDottedPaint.setPathEffect(new DashPathEffect(new float[] {2f,5f}, 0f));
     }
 
     protected boolean isDrawingValuesAllowed(ChartInterface chart) {

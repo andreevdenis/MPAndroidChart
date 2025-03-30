@@ -6,6 +6,8 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.util.Pair;
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.charts.LineChart;
 import com.github.mikephil.charting.data.Entry;
@@ -399,6 +401,7 @@ public class LineChartRenderer extends LineRadarRenderer {
 
             if (e1 != null) {
                 List<Entry> drawDotsList = new ArrayList<>();
+                List<Pair<Entry,Entry>> drawDottedLine = new ArrayList<>();
 
                 boolean prevIsGap = true;
                 int j = 0;
@@ -410,6 +413,7 @@ public class LineChartRenderer extends LineRadarRenderer {
                     if (maximumGapBetweenPoints > 0 && (e2.getX() - e1.getX() > maximumGapBetweenPoints)) {
                         if (prevIsGap) drawDotsList.add(e1);
                         prevIsGap = true;
+                        drawDottedLine.add(new Pair<>(e1, e2));
                     } else {
                         lineCount++;
                         prevIsGap = false;
@@ -436,8 +440,22 @@ public class LineChartRenderer extends LineRadarRenderer {
                         pointToDraw[0] = entry.getX();
                         pointToDraw[1] = entry.getY();
                         trans.pointValuesToPixel(pointToDraw);
-                        canvas.drawCircle(pointToDraw[0], pointToDraw[1], 1, mRenderPaint);
+                        canvas.drawCircle(pointToDraw[0], pointToDraw[1], 0.7f, mRenderPaint);
                     }
+                }
+
+                mDottedPaint.setColor(dataSet.getColor());
+                float[] pointToDraw = new float[2];
+                float[] pointToDraw2 = new float[2];
+
+                for (Pair<Entry, Entry> pair : drawDottedLine) {
+                    pointToDraw[0] = pair.first.getX();
+                    pointToDraw[1] = pair.first.getY();
+                    pointToDraw2[0] = pair.second.getX();
+                    pointToDraw2[1] = pair.second.getY();
+                    trans.pointValuesToPixel(pointToDraw);
+                    trans.pointValuesToPixel(pointToDraw2);
+                    canvas.drawLine(pointToDraw[0], pointToDraw[1], pointToDraw2[0], pointToDraw2[1], mDottedPaint);
                 }
             }
         }
