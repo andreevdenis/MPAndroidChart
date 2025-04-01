@@ -70,10 +70,10 @@ public abstract class DataRenderer extends Renderer {
         mHighlightPaint.setColor(Color.rgb(255, 187, 115));
 
         mDottedPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mDottedPaint.setStyle(Style.FILL);
-        mDottedPaint.setStrokeWidth(2f);
-
-        mDottedPaint.setPathEffect(new DashPathEffect(new float[] {2f,5f}, 0f));
+        mDottedPaint.setStyle(Style.STROKE);
+        mDottedPaint.setStrokeWidth(4f);
+        mDottedPaint.setStrokeCap(Paint.Cap.ROUND);
+        mDottedPaint.setPathEffect(new DashPathEffect(new float[] {0f,10f}, 0f));
     }
 
     protected boolean isDrawingValuesAllowed(ChartInterface chart) {
